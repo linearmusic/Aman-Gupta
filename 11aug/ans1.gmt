@@ -22,7 +22,7 @@ gmt psxy -K -O -P -R -JP -Sc -A >> ans1.ps <<ENDLAYERS
 ENDLAYERS
 
 # draw paths
-gmt psxy -P -R -K -O -JP -m -A >> ans1.ps <<END
+gmt psxy -P -R -K -O -JP -m -A -W1,Blue >> ans1.ps <<END
 > P at   683.32 seconds at    72.59 degrees for a     30.0 km deep source in the prem model with rayParam    5.932 s/deg.
     0.00    6341.0
     0.01    6338.8
