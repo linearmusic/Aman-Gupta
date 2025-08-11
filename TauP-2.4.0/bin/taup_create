@@ -1,0 +1,52 @@
+#!/bin/bash
+
+if [ -z "${JAVA}" ] ; then
+JAVA=java 
+fi
+PRG=$0
+saveddir=`pwd`
+
+# need this for relative symlinks
+PRGDIR=`dirname "$PRG"`
+
+TAUP_HOME="$PRGDIR/.."
+
+# make it fully qualified
+TAUP_HOME=`cd "${TAUP_HOME}" && pwd`
+
+cd "$saveddir"
+
+#Jacorb-2.3.0 does bad things with a popular default LANG value, en_US.UTF-8
+unset LANG
+
+
+LIB=${TAUP_HOME}/lib
+
+TAUP=$LIB/TauP-2.4.0.jar
+SEISFILE=$LIB/seisFile-1.7.1.jar
+JYTHONSTANDALONE=$LIB/jython-standalone-2.5.3.jar
+SEEDCODEC=$LIB/seedCodec-1.0.11.jar
+JSAP=$LIB/jsap-2.1.jar
+SLF4JAPI=$LIB/slf4j-api-1.7.21.jar
+SLF4JLOG4J12=$LIB/slf4j-log4j12-1.7.21.jar
+RXTX=$LIB/rxtx-2.1.7.jar
+WOODSTOXCORELGPL=$LIB/woodstox-core-lgpl-4.4.1.jar
+MSVCORE=$LIB/msv-core-2013.6.1.jar
+HTTPCLIENT=$LIB/httpclient-4.5.2.jar
+MYSQLCONNECTORJAVA=$LIB/mysql-connector-java-5.1.39.jar
+LOG4J=$LIB/log4j-1.2.17.jar
+STAXAPI=$LIB/stax-api-1.0-2.jar
+STAX2API=$LIB/stax2-api-3.1.4.jar
+XSDLIB=$LIB/xsdlib-2013.6.1.jar
+ISORELAX=$LIB/isorelax-20090621.jar
+HTTPCORE=$LIB/httpcore-4.4.4.jar
+COMMONSLOGGING=$LIB/commons-logging-1.2.jar
+COMMONSCODEC=$LIB/commons-codec-1.9.jar
+RELAXNGDATATYPE=$LIB/relaxngDatatype-20020414.jar
+
+
+CLASSPATH=${TAUP}:${SEISFILE}:${JYTHONSTANDALONE}:${SEEDCODEC}:${JSAP}:${SLF4JAPI}:${SLF4JLOG4J12}:${RXTX}:${WOODSTOXCORELGPL}:${MSVCORE}:${HTTPCLIENT}:${MYSQLCONNECTORJAVA}:${LOG4J}:${STAXAPI}:${STAX2API}:${XSDLIB}:${ISORELAX}:${HTTPCORE}:${COMMONSLOGGING}:${COMMONSCODEC}:${RELAXNGDATATYPE}
+
+$JAVA -classpath $CLASSPATH \
+     -Xmx512m -XX:+HeapDumpOnOutOfMemoryError  \
+    edu.sc.seis.TauP.TauP_Create   "$@" 
