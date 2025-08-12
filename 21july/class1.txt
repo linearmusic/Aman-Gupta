@@ -1,3 +1,0 @@
-gmt pscoast -R68/110/10/50 -JM40 -B5g5 -N1 -G200 -Sblue >x.ps
-this is for plotting the map of India
-

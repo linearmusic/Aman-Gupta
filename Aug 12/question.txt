@@ -1,0 +1,12 @@
+Station info -
+lat: 27.34 long: 85.99
+
+Events info - 
+
+lat     long      depth
+-----------------------
+36.69   178.40    111.6
+22.35   158.94    68.1
+18.25   -68.77    122
+
+Piercing point at 410Km for SKS phase
