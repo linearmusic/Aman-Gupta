@@ -1,0 +1,23 @@
+ 2020  4 2 1519 33.6 L                                                         1
+ ACTION:REG 25-09-02 12:51 OP:INSK STATUS:               ID:20200402151933     I
+ 2020-04-02-1519-33M.INSK__018                                                 6
+ STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO AIN AR TRES W  DIS CAZ7
+ SK09 BZ IP     C 1520 56.47                                                    
+ SK09 BN IS     C 1520 56.98                                                    
+ SK09 BE IS     C 1520 57.95                                                    
+ SK10 BZ IP     C 1520 58.76                                                    
+ SK10 BN IS       1521  1.93                                                    
+ SK10 BE IS     C 1521  1.81                                                    
+ SK11 BZ IP       1520 58.85                                                    
+ SK11 BN IS     C 1520 59.08                                                    
+ SK11 BE IS     C 1520 59.09                                                    
+ SK22 BN IS       1521 10.89                                                    
+ SK22 BE IS       1521 11.18                                                    
+ SK17 BZ IP       1521  0.57                                                    
+ SK00 BZ IP     C 1520 53.91                                                    
+ SK22 BZ IP       1521  4.41                                                    
+ SK17 BN IS     C 1521  4.92                                                    
+ SK17 BE IS       1521  4.77                                                    
+ SK00 BN IS     C 1521 16.02                                                    
+ SK00 BE IS       1521 15.77                                                    
+                                                                                

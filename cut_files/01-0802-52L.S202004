@@ -1,6 +1,29 @@
  2020  4 1  8 2 52.6 L                                                         1
- ACTION:REG 25-08-26 12:51 OP:INSK STATUS:               ID:20200401080252     I
+ ACTION:REG 25-09-02 12:33 OP:INSK STATUS:               ID:20200401080252     I
  2020-04-01-0802-52M.INSK__024                                                 6
  STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO AIN AR TRES W  DIS CAZ7
- SK00 BZ IP     C  8 5 13.17                                                    
+ SK00 BZ IP     C  8 5 13.21                                                    
+ SK00 BN IS     C  8 5 40.12                                                    
+ SK00 BE IS     C  8 5 40.80                                                    
+ SK07 BZ IP     C  8 5  8.13                                                    
+ SK07 BN IS     C  8 5 29.74                                                    
+ SK07 BE IS     C  8 5 29.78                                                    
+ SK10 BZ IP     D  8 5  2.82                                                    
+ SK10 BN IP     C  8 5 21.18                                                    
+ SK10 BE IP     C  8 5 20.70                                                    
+ SK13 BZ IP     C  8 5  6.00                                                    
+ SK13 BN IP     C  8 5 25.40                                                    
+ SK13 BE IP     C  8 5 25.30                                                    
+ SK18 BZ IP     D  8 5  1.81                                                    
+ SK18 BN IS        8 5 18.39                                                    
+ SK18 BE IS     C  8 5 18.37                                                    
+ SK20 BZ IP        8 4 58.60                                                    
+ SK20 BN IS     C  8 5 15.66                                                    
+ SK20 BE IS     D  8 5 15.49                                                    
+ SK22 BZ IP     D  8 5  2.00                                                    
+ SK22 BN IS     D  8 5 20.13                                                    
+ SK22 BE IS     C  8 5 19.71                                                    
+ SK23 BZ IP     C  8 5  0.43                                                    
+ SK23 BN IS     C  8 5 17.53                                                    
+ SK23 BE IS     C  8 5 18.44                                                    
                                                                                 
