@@ -1,0 +1,11 @@
+
+Model: prem
+Distance   Depth   Phase   Travel    Ray Param  Takeoff  Incident  Purist    Purist
+  (deg)     (km)   Name    Time (s)  p (s/deg)   (deg)    (deg)   Distance   Name 
+-----------------------------------------------------------------------------------
+  152.50   200.0   Pdiff   1033.02     4.428     19.21    13.35   152.50   = Pdiff
+  152.50   200.0   PKIKP   1163.55     1.477      6.30     4.42   152.50   = PKIKP
+  152.50   200.0   PKP     1181.66     4.191     18.14    12.63   152.50   = PKP  
+  152.50   200.0   SKIKS   1572.46     1.203      2.83     1.98   152.50   = SKIKS
+  152.50   200.0   Sdiff   1917.52     8.361     20.09    13.92   152.50   = Sdiff
+
