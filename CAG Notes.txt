@@ -1,0 +1,192 @@
+GMT + TauP – Consolidated Study Notes (CAG)
+
+Purpose: One place to revise GMT basics, projections, grid workflows, plotting stations/labels, finishing maps, and TauP commands for phases, paths, and piercing points.
+
+------------------------------------------------------------
+0) Quick mental model
+- -R: region (lon/lat bounds)
+- -J: projection (e.g., -JM, -Jm, -Js, -JP, -JX)
+- -B: basemap frame/ticks
+- -K: keep PostScript open (more layers coming)
+- -O: overlay on existing PostScript
+- > file.ps: create/overwrite; >> file.ps: append
+- Use variables: Reg, Pro, GRD, CPT, ps to keep scripts readable
+
+------------------------------------------------------------
+1) Minimal coastline map (like practice/notes1.txt)
+Command:
+  gmt pscoast -R68/110/10/50 -JM40 -B5g5 -N1 -G200 -Sblue > x.ps
+Notes:
+- -R68/110/10/50: lon 68–110 E, lat 10–50 N
+- -JM40: Mercator projection, map width 40 cm (uppercase M)
+- -B5g5: 5° major ticks + 5° grid lines
+- -N1: national borders; -G200: land fill (gray 200); -Sblue: ocean blue
+- Output: x.ps (PostScript)
+
+------------------------------------------------------------
+2) Advanced topo workflow (like practice/notes2.txt)
+Variables:
+  Reg=-R113/160/-38/-12
+  Pro=-Jm0.5
+  GRD=topo30.grd
+  CPT=aman.cpt
+  ps=australia.ps
+Commands:
+  gmt grdcut $GRD $Reg -Gtmp1.grd -V
+  gmt grdsample tmp1.grd -Gtmp.grd -I4m -r -nc+c -V
+  gmt grdgradient tmp.grd -A315 -Ggradient.grd -Nt -V
+  gmt pscoast $Reg $Pro -B2g2 -Slightblue -K > $ps
+  gmt grdimage tmp.grd $Reg $Pro -C$CPT -Igradient.grd -O -K >> $ps
+  gmt pscoast $Reg $Pro -W0.25p,black -Ia/0.3p,blue -O >> $ps
+Notes:
+- grdcut: cut out region into tmp1.grd
+- grdsample: resample to 4 arc‑min; -r pixel registration; -nc+c bicubic + boundary cond
+- grdgradient: hillshade with light azimuth 315°; -Nt: normalize by tan(slope)
+- grdimage: color grid with CPT + shading
+- pscoast second call: draw coastlines (-W) and rivers (-Ia)
+
+Optional finishing:
+  gmt colorbar -C$CPT -Dx0.5i/0.3i+w2i/0.15i+h -Bxaf -By+l"elevation (m)" -O -K >> $ps
+  gmt psconvert $ps -A -P -Tf   # to PDF (or -Tg PNG)
+
+------------------------------------------------------------
+3) Plotting stations and labels
+Data examples:
+- stations.txt: lon lat [name]
+Plot symbols:
+  gmt psxy stations.txt $Reg $Pro -Sc0.12i -Gred -Wthin,black -O -K >> $ps
+Triangles / inverted triangles:
+  gmt psxy stations.txt $Reg $Pro -St0.14i -Gblue -Wthin -O -K >> $ps
+  gmt psxy stations.txt $Reg $Pro -Si0.14i -Gblue -Wthin -O -K >> $ps
+Labels:
+  gmt pstext stations.txt $Reg $Pro -F+f9p,Times-Roman+jRT -D0.08i/0.08i -O -K >> $ps
+Color/size by attribute (z in 3rd/4th column):
+  gmt makecpt -Cturbo -T0/700/50 > depth.cpt
+  gmt psxy stations_z.txt $Reg $Pro -Sc0.12i -Cdepth.cpt -i0,1,2 -O -K >> $ps
+  gmt colorbar -Cdepth.cpt -Dx3i/0.3i+w2.5i/0.12i+h -Bxaf -By+l"Depth (km)" -O >> $ps
+
+------------------------------------------------------------
+4) Projections (switching quickly)
+- Mercator:         -JM10c (width) or -Jm0.5 (scale)
+- Stereographic:    -Jslon0/lat0/width/lat_std (e.g., -Js0/90/4.5i/60)
+- Polar (azimuthal): -JP6i (for ray‑path cross‑sections, Earth radius on y)
+- Linear/X‑Y:       -JX10c/6c
+Choose width vs scale depending on module docs; uppercase vs lowercase letters are valid for Mercator in GMT.
+
+------------------------------------------------------------
+5) Basemap, frames, rivers/borders, finishing touches
+Basemap frame styles:
+  -Bafg     # annotated, automatic, grid
+  -B2g2     # 2° ticks and 2° grid
+Coast/borders/rivers:
+  -N1/0.5p,black     # national borders
+  -N2/0.5p,black     # state/province
+  -I1/0.5p,blue      # major rivers
+  -I2/0.25p,blue     # medium rivers
+  -I3/0.25p,blue     # minor rivers
+North arrow / scale bar:
+  gmt basemap $Reg $Pro -TdjBR+w1.2c+f1+l"N" -Lx6i/0.25i+c85+w200k+f -O -K >> $ps
+Export:
+  gmt psconvert $ps -A -P -Tf   # PDF
+  gmt psconvert $ps -A -P -Tg   # PNG
+
+------------------------------------------------------------
+6) GMT defaults and fonts
+Set once in script:
+  gmt gmtset FONT_ANNOT_PRIMARY 12p,Times-Roman,black
+  gmt gmtset FONT_LABEL 16p,Times-Roman,black
+Or maintain a gmt.conf in folder for persistent defaults.
+
+------------------------------------------------------------
+7) Seismic ray paths with GMT (cross‑section style)
+Template:
+  gmt psbasemap -K -P -R0/360/0/6371 -JP6i -B30p/500N > rays.ps
+  # Draw Earth shells as circles (scaled for -JP)
+  gmt psxy -K -O -P -R -JP -Sc -A >> rays.ps << EOF
+  0 0 6.0i
+  0 0 5.9859i   # Moho
+  0 0 5.6233i   # 670
+  0 0 5.3690i   # CMB
+  0 0 3.2773i   # ICB
+  EOF
+  # Plot path segments injected via stdin (from TauP path output if converted)
+  gmt psxy -P -R -K -O -JP -m -A -W1p,blue >> rays.ps << EOF
+  > P ...
+  lon radius
+  ...
+  EOF
+  gmt psconvert rays.ps -A -P -Tf
+
+------------------------------------------------------------
+8) TauP – installation + core commands (use iasp91 or prem)
+Run from TauP bin (or ensure on PATH). Typical commands:
+Travel times (by phase list):
+  taup_time -mod iasp91 -h 30 -evt 45 178 -sta 22 91 -ph P,S,pP,ScS
+All phases (let TauP choose):
+  taup_time -mod prem -h 30 -evt 45 178 -sta 22 91
+Ray paths (tabular points suitable for plotting):
+  taup_path -mod prem -h 30 -evt 45 178 -sta 22 91 -ph P,S,pP,ScS > taup_path.gmt
+Piercing points at specific depths (e.g., SKS @ 410 km):
+  taup_pierce -mod iasp91 -h 111.6 -evt 36.69 178.40 -sta 27.34 85.99 -ph SKS > pierce.txt
+Multiple events (change -h/-evt; keep -sta constant for one station):
+  taup_pierce -mod iasp91 -h 68.1  -evt 22.35 158.94 -sta 27.34 85.99 -ph SKS >> pierce.txt
+  taup_pierce -mod iasp91 -h 122   -evt 18.25 -68.77 -sta 27.34 85.99 -ph SKS >> pierce.txt
+Notes:
+- -mod: earth model (iasp91, prem)
+- -h: source depth (km)
+- -evt/-sta: event/station lat lon (lat first, lon second)
+- -ph: phase list (P, S, pP, ScS, PKP, PKIKP, SKS, etc.)
+
+Plot piercing points (lon,lat order for GMT):
+If pierce.txt has lines like: ".. depth lon lat ...", extract lon/lat:
+  awk '{if($2==410) print $4, $5}' pierce.txt > pierce_410.xy    # adjust field indices to your file
+  gmt psxy pierce_410.xy $Reg $Pro -Sc0.12i -Gblue -Wthin -O -K >> $ps
+  gmt pstext pierce_410.xy $Reg $Pro -F+f9p,Times-Roman+jLT -D0.05i/0.05i -O >> $ps
+
+------------------------------------------------------------
+9) Working with MiniSEED (quick start via ObsPy – optional prep)
+Python (recommended):
+  pip install obspy
+Example (read + filter + write picks):
+  python - << 'PY'
+from obspy import read
+st = read('2020-092-08-03-00SK00.miniseed')
+st.detrend('linear'); st.filter('bandpass', freqmin=0.03, freqmax=0.3)
+st.write('filtered.mseed', format='MSEED')
+# manual/auto picks would be added here, then save CSV lon,lat,mag/depth for GMT
+PY
+Then map station/event CSVs with psxy/pstext as in sections 3 and 10.
+
+------------------------------------------------------------
+10) Putting it together – typical study exercises
+A) India topo with legend, scale, north arrow
+  Reg=-R68/100/6/35; Pro=-Jm0.5; GRD=INDIA.GRD; CPT=relief.cpt; ps=india.ps
+  gmt grdcut $GRD $Reg -Gtmp1.grd
+  gmt grdsample tmp1.grd -Gtmp.grd -I4m -r -nc+c
+  gmt grdgradient tmp.grd -A315 -Ggrad.grd -Nt
+  gmt pscoast $Reg $Pro -Bafg -Slightblue -K > $ps
+  gmt grdimage tmp.grd $Reg $Pro -C$CPT -Igrad.grd -O -K >> $ps
+  gmt pscoast $Reg $Pro -N1/0.4p,black -I1/0.3p,blue -O -K >> $ps
+  gmt colorbar -C$CPT -Dx0.5i/0.3i+w2.5i/0.12i+h -Bxaf -By+l"m" -O -K >> $ps
+  gmt basemap $Reg $Pro -TdjBR+w1.2c+f1+l"N" -Lx6i/0.25i+c85+w200k+f -O >> $ps
+  gmt psconvert $ps -A -P -Tg
+
+B) Plot stations + labels
+  gmt psxy stations.txt $Reg $Pro -Sc0.12i -Gred -Wthin -K > stations.ps
+  gmt pstext stations.txt $Reg $Pro -F+f9p,Helvetica-Bold+jRT -D0.08i/0.08i -O >> stations.ps
+
+C) TauP piercing @410 km for SKS, then plot
+  taup_pierce -mod iasp91 -h 111.6 -evt 36.69 178.40 -sta 27.34 85.99 -ph SKS > p.txt
+  awk '{if ($3==410) print $5, $4}' p.txt > p410.xy   # adjust fields to your file
+  gmt pscoast -R83/90/25/30 -Jm3 -Bafg -K > p.ps
+  gmt psxy p410.xy -R -J -Sc0.14i -Gblue -Wthin -O >> p.ps
+
+------------------------------------------------------------
+11) Common gotchas
+- lon/lat ordering: GMT expects lon lat (x y). Many seismic tools list lat lon.
+- -K/-O order: first layer uses -K (no -O). Subsequent layers use both -O -K. Last layer uses -O only.
+- Units: i (inch), c (cm), p (points). Size flags like -Sc0.12i are in chosen units.
+- Projections: -J is the projection flag; M/m indicates Mercator when used (e.g., -JM, -Jm).
+- Clean temp files (tmp*.grd) to save space.
+
+That’s it. Practice by re-running your dated class scripts, then replicate each output with small modifications (change -R, -J, symbols, CPTs) until it feels natural.

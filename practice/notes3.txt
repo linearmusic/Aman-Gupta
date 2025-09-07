@@ -1,0 +1,180 @@
+Advanced Mapping and Visualisation
+
+code is :
+
+#!/bin/sh
+→ This line must always be written at the top of shell scripts. It tells the computer to use the sh shell to run the commands.
+
+gmt gmtset FONT_ANNOT_PRIMARY Times-Roman
+gmt gmtset FONT_LABEL Times-Roman
+→ These two lines set the fonts for annotations and labels to Times-Roman, instead of GMT’s default font.
+
+Reg=-R-90/-30/-60/15
+→ Region of interest. This specifies the map boundaries:
+
+Longitude: -90° to -30° (west)
+
+Latitude: -60° to 15° (south to north)
+→ This box fully covers South America.
+
+Pro=-Jm0.2
+→ Projection: Mercator (-Jm).
+→ Scale: 0.2, meaning 0.2 inches per degree (shrinks the map so the continent fits on the page).
+
+GRD=topo30.grd
+CPT=aman.cpt
+ps=south-america.ps
+→ topo30.grd is a global topography dataset.
+→ aman.cpt is a custom color palette file for elevation.
+→ south-america.ps is the output map file.
+
+Step 1: Cut the region from the global topo grid (same as notes2)
+------------------------------------------------
+gmt grdcut $GRD $Reg -Gtmp1.grd -V
+-> grdcut extracts a subsection of the global grid file and stores it into tmp1.grd
+-> $GRD = topo30.grd (input)
+-> $Reg = region box (-R-90/-30/-60/15)
+-> -Gtmp1.grd → output file name
+-> -V → verbose mode, prints progress
+
+Step 2: Resample to 4 arc-minute resolution (same as notes2)
+-------------------------------------------
+gmt grdsample tmp1.grd -Gtmp.grd -I4m -r -nc+c -V
+-> grdsample changes resolution and interpolates data.
+-> Input: tmp1.grd
+-> Output: tmp.grd
+-> -I4m → new grid spacing = 4 arc-minutes (1/15°)
+-> -r → pixel registration (grid points at corners)
+-> -n → choose interpolation method
+-> c → bicubic interpolation
+-> +c → handle boundaries smoothly
+-> -V → verbose mode
+So this reduces resolution to make processing lighter and smoother.
+
+Step 3: Compute gradient for shading (same as notes2)
+------------------------------------
+gmt grdgradient tmp.grd -A315 -Ggradient.grd -Nt -V
+-> Calculates shading based on slope.
+-> Input: tmp.grd
+-> -A315 → illumination from NW (315° azimuth)
+-> Output: gradient.grd (gradient grid file)
+-> -Nt → normalize slope using tangent (realistic look)
+-> -V → verbose
+-> This file adds 3D-like relief shading later.
+
+Step 4: Base map frame (same as notes2)
+----------------------
+gmt pscoast $Reg $Pro -Bf2g2 -Slightblue -K > $ps
+→ Draws coastlines, borders, gridlines.
+
+$Reg $Pro → region and projection
+
+-Bf2g2 → base frame (f2 = ticks every 2°, g2 = gridlines every 2°)
+
+-Slightblue → ocean fill = light blue
+
+-K → keep file open for more layers
+
+> → start writing to $ps (new file)
+
+Step 5: Plot terrain image
+
+gmt grdimage tmp.grd $Reg $Pro -C$CPT -Igradient.grd -O -K >> $ps
+→ Adds colored topography with shading.
+
+tmp.grd → topography data
+
+$Reg $Pro → region + projection
+
+-C$CPT → apply aman.cpt color palette
+
+-Igradient.grd → shading file
+
+-O → overlay (continue file)
+
+-K → keep file open
+
+>> → append to existing PostScript file
+
+Step 6: Add coastlines and rivers
+
+gmt pscoast $Reg $Pro -Q -W0.25p,black -Ia/0.5,blue -O -K >> $ps
+→ Draws coastlines and rivers.
+
+-Q → suppress clipping at map boundaries
+
+-W0.25p,black → coastlines in thin black
+
+-Ia/0.5,blue → draw major rivers in 0.5-point thick blue lines
+
+-O → overlay
+
+-K → keep open
+
+>> → append
+
+Step 7: Plot cities as symbols
+
+gmt psxy cities.dat $Reg $Pro -Si0.1i -Gblue -Wthin -O -K >> $ps
+→ Plots points from cities.dat.
+
+psxy plots x/y coordinates
+
+$Reg $Pro → apply map settings
+
+-Si0.1i → inverted triangles, 0.1 inch size
+
+-Gblue → filled blue
+
+-Wthin → thin border
+
+-O -K → overlay, keep open
+
+>> → append
+
+Step 8: Label the cities
+
+gmt pstext cities.dat $Reg $Pro -F+f10p,Times-Roman+jRT -D0.1i/0.1i -O -K >> $ps
+→ Adds text labels next to each city.
+
+-F+f10p,Times-Roman → font size 10p, Times-Roman
+
++jRT → align text to Right-Top of symbol
+
+-D0.1i/0.1i → offset text by 0.1 inch (x, y)
+
+-O -K → overlay, keep open
+
+>> → append
+
+Step 9: Finalize the file
+
+gmt showpage -O >> $ps
+→ Ends the PostScript file.
+
+showpage tells the viewer “map is done, display now.”
+
+-O continues overlay mode correctly.
+
+okular $ps
+→ Opens the final PostScript file in Okular viewer.
+
+⚡ In short:
+
+Cut South America from global topo data.
+
+Resample grid.
+
+Make shading.
+
+Draw base map.
+
+Overlay terrain in colors.
+
+Add coastlines and rivers.
+
+Plot cities as triangles.
+
+Add city labels.
+
+Close file and display in viewer.
