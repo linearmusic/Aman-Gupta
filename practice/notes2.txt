@@ -1,1 +1,100 @@
 Advanced Mapping and Visualisation
+code is :
+
+** #!/bin/sh 
+-> This line has to be written before we write every code
+
+** Reg=-R113/160/-38/-12
+-> This line tells GMT that I only care about the rectangle covering the longitude 113°E to 160°E and Latitudes 38°S to 12°S
+
+** Pro=-Jm0.5
+-> We have used a Mercator Projection, scaled so that the map is half a unit per degree , this controls how the earths curved surface is flattened on the paper
+
+**
+GRD=topo30.grd
+CPT=aman.cpt
+ps=australia.ps
+-> topo30.grd is a global grid of elevation values
+-> aman.cpt is a color palette file that says low elevations are blue, higher ones are green and mountains are either brown or white, or whatever color we define
+-> australia.ps is the output map we require
+
+Step 1: Cut the Region from the global topo grid
+------------------------------------------------
+** gmt grdcut $GRD $Reg -Gtmp1.grd -V
+-> gmt grdcut it runs a module of GMT that extracts the rectangular subsection froma grid file
+-> $GRD it expands to topo30.grd dataset and $Reg expands to the region we defined
+-> -Gtmp1.grd -> this si the name of the new file where the cut our grid will be saved i.e tmp1.grd 
+-> -V -> VErbose mode means GMT Prints progress/info into the terminnal
+
+Step 2: Resample to 4 arc-minute resolution
+-------------------------------------------
+** gmt grdsample tmp1.grd -Gtmp.grd -I4m -r -V
+-> gmt grdsample is the module to change grid spacing or interpolation
+-> tmp1.grd -Gtmp.grd -> tmp1.grd is the inout file and -Gtmp.grd is the output file after sampling
+-> -I4m - this is the new grid spacing that is 4m means 4arc minutes (1 arc-minute = 1/60 of a degree)
+-> -r is to use pixel registration (grid values represent the corners of cells, not the centers)
+-> -nc+c -> this is the interpolation method , where
+-> -n is to set interpolation options
+-> c is the bicubic interpolation options
+-> +c it also adjusts boundary conditions
+-> -V we know it is verbose mode
+
+So basicall this line says that Resample the Australia grid to lower resolution (4 minutes per cell) using smooth interpolation, and save it as tmp.grd
+
+Step 3: Compute gradient for shading
+------------------------------------
+gmt grdgradient tmp.grd -A315 -Ggradient.grd -Nt -V
+->gmt grdgradient -> this module calculates the slope/illumination
+-> tmp.grd is the input grid
+->-A315 -> this gives the light source azimuth - 315 degree Northwest
+-> -Ggradient.grd -> this is the output gradient file fir shading
+-> -Nt -> normalize by tangent of the slope for realistic shading
+
+Step 4: Base map frame
+----------------------
+gmt pscoast $Reg $Pro -B2g2 -Slightblue -K > $ps
+->gmt pscoast -> it is the module which draws coastlinesand borders
+-> $Reg , $Pro -> these variables give us the region and projections as defined in the earlier steps
+-> -B2g2 -> -B adds basemap frames/grid at an interval of 2 degree and the g2 is for gridlines at every 2 degree interval
+-> -Sblue -> this is to fill the water with blue color
+-> -K -> This keeps the postscript file open for more layers
+-> here we have used only > instead of >> so it redirects to write a new file and it will be stored in $ps the ouput defined initially
+
+Step 5: Plot terrain image
+--------------------------
+gmt grdimage tmp.grd $Reg $Pro -C$CPT -Igradient.grd -O -K >> $p
+-> gmt grdimage module plots raster grids in colors
+-> tmp.grd is the input topography 
+-> -C$CPT -> this uses the color palette aman.cpt which was stored in variable $CPT
+-> -Igradient.grd -> Apply shading from gradient file
+-> -O → overlay (continue file)
+-> -K → keep file open.
+-> >> → append to existing PostScript file
+-> $ps → output file.
+
+Step 6: Add coastlines and rivers
+---------------------------------
+gmt pscoast $Reg $Pro -W0.25p,black -Ia/0.3p,blue -O >> $ps
+-> gmt pscoast → draw coastlines, rivers, borders.
+-> -W0.25p,black → draw coastlines: 0.25-point thick, black in color
+-> -Ia/0.3p,blue → draw all rivers (a) with 0.3-point thick blue lines
+-> -O → overlay.
+-> >> → append to file.
+-> $ps → output file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

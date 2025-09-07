@@ -9,7 +9,7 @@ gmt gmtset FONT_LABEL Times-Roman
 Reg=-R-90/-30/-60/15
 
 # Projection (mercator) with a new, smaller scale to fit the page
-Pro=-Jm0.5
+Pro=-Jm0.2
 
 # Input grid and color palettes
 GRD=topo30.grd
@@ -46,5 +46,7 @@ gmt pstext cities.dat $Reg $Pro -F+f10p,Times-Roman+jRT -D0.1i/0.1i -O -K >> $ps
 
 # Step 9: Finalize the PostScript file
 gmt showpage -O >> $ps
+
+okular $ps
 
 
