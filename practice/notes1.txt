@@ -1,0 +1,28 @@
+code : gmt pscoast -R68/110/10/50 -JM40 -B5g5 -N1 -G200 -Sblue >x.ps
+
+Understanding the syntax -
+** gmt pscoast - this is a gmt command to draw coastlines and create maps
+**  -R68/110/10/50 - this is to define the region-
+68/110 is the longitude range from (68 degree E to 110 degree E)
+and 10/50 is the latitude range from (10 degree North to 50 degree North)
+** -Jm40 - -J is for the type of projections
+
+//https://docs.generic-mapping-tools.org/6.0/pscoast.html?highlight=pscoast
+this link has info about the different projections etc
+
+if there is any type of projections we can look it up on the above website
+
+m stands for mercator projection and 40 is the width of the map that is 40cm
+incase we had -Jm0.8 then we would be using a different projection format and the scale facotor would be 0.8
+
+** -B5g5 -> -B this sets the borders/ticks 
+5 means that the major borders will be at 5 degrees
+g5 means that the minor ticks at 5 degree
+
+** -N1 -> this is for drawing the national boundaries
+
+** -G200 -> this fills the land arewas with gray cvolor (200= light gray)
+
+** -Sblue -> Fill water bodies with blue cvolor
+
+** >>x.ps -> this saves the result in x.ps
